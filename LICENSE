@@ -19,3 +19,11 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
+---------------------------------------------------------------------------
+Third-party files included under their own licences:
+
+  firmware/src/jsmn.h             jsmn, Copyright (c) 2010 Serge A. Zaitsev, MIT
+                                  (full text in firmware/src/jsmn_LICENSE)
+  firmware/pico_sdk_import.cmake  from the Raspberry Pi pico-sdk, BSD-3-Clause,
+                                  Copyright (c) 2020 Raspberry Pi (Trading) Ltd.
