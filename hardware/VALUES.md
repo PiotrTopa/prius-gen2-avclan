@@ -23,6 +23,7 @@ Sources:
 | R2 | **10 kΩ** (measured 9.87 k) | H1 right / car BROWN / Data− → pin 6 | measured 2026-10-14 |
 | Rbias | **220 kΩ** | pin 3 (5 V) → pin 6 | measured 2026-10-14 (found to GND; moved to 5 V that day) |
 | R3 | 4.7 kΩ | pin 1 → 3V3 pull-up; pin 1 → GP0 | netlist + doc (not contradicted by the measurements) |
+| R2M | 2 MΩ | 3V3 → pin 6 (IN−), second bias path | fitted by design, user-confirmed 2026-10-22; measured shift ≈ +3.5 mV (car) / +16 mV (bench) |
 | C1 | 100 nF | pin 3 → GND | brief/doc ("do add"); presence on the board not separately confirmed |
 | feedback | **none** | (470 kΩ pin 1 → pin 7 was removed 2026-10-14) | measured 2026-10-14 |
 
@@ -38,19 +39,19 @@ the 2026-10-08 log still lists "R6 → 1 k + 100 pF across R5" as *not yet appli
 other way: the 2026-10-08 bench log calls the diode drops "Schottky-level → rebuild-spec parts",
 but that was an inference from one DC reading (left 4.55 V on a scope that reads ≈6 % high, right
 "0 V"), not a part identification, and it fits neither set cleanly. **The drawings therefore show
-the ORIGINAL netlist values** (what the board was built from). Read the TX parts off the board to settle it.
+the UPGRADED part set**, which the owner confirmed as fitted on 2026-10-22; the original netlist values are kept in the table for reference.
 
-| Ref | Drawn (original netlist) | Recommended upgrade (NOT drawn) | Connection | Source of drawn value |
+| Ref | Drawn (as built, user-confirmed 2026-10-22) | Original netlist (earlier value) | Connection | Source of drawn value |
 |---|---|---|---|---|
 | Q1 | BC547 NPN | — | E → GND, B ← R4, C → R5 and D2 cathode | netlist (value field BC547; netlist MPN 2N3904S) |
 | Q2 | BC327 PNP | — | E → 5 V, B ← R5/R6, C → D1 anode, Rbleed | netlist |
-| R4 | 4.7 kΩ | 2.2 kΩ | GP1 → Q1 base | netlist (original), unverified on board |
-| R5 | 1 kΩ | 2.2 kΩ | Q1 collector → Q2 base | netlist (original), unverified |
-| R6 | 10 kΩ | 1 kΩ | Q2 base → 5 V | netlist (original), unverified |
-| R7 | 47 Ω | 68 Ω (or 82 Ω) | D1 cathode → Data+ (H1 left) | netlist (original), unverified |
-| R8 | 47 Ω | 68 Ω (or 82 Ω) | Data− (H1 right) → D2 anode | netlist (original), unverified |
-| D1 | 1N4007W, anode at Q2 C | BAT54 (or 1N4148W / BAS16) | Q2 C → R7 | netlist (original), unverified |
-| D2 | 1N4007W, **cathode at Q1 C**, anode at R8 | BAT54 (or 1N4148W / BAS16) | R8 → Q1 C | netlist; orientation confirmed working 2026-10-08 (right line sinks to ≈0 V) |
+| R4 | 2.2 kΩ | 4.7 kΩ | GP1 → Q1 base | user-confirmed 2026-10-22 (upgrade set fitted) |
+| R5 | 2.2 kΩ | 1 kΩ | Q1 collector → Q2 base | user-confirmed 2026-10-22 |
+| R6 | 1 kΩ | 10 kΩ | Q2 base → 5 V | user-confirmed 2026-10-22 |
+| R7 | 68 Ω | 47 Ω | D1 cathode → Data+ (H1 left) | user-confirmed 2026-10-22 |
+| R8 | 68 Ω | 47 Ω | Data− (H1 right) → D2 anode | user-confirmed 2026-10-22 |
+| D1 | BAT54, anode at Q2 C | 1N4007W | Q2 C → R7 | user-confirmed 2026-10-22 |
+| D2 | BAT54, **cathode at Q1 C**, anode at R8 | 1N4007W | R8 → Q1 C | user-confirmed 2026-10-22; orientation confirmed working 2026-10-08 (right line sinks to ≈0 V) |
 | Rbleed | **12 kΩ** | — (harmless, keep) | Q2 collector (D1 anode) → GND | log 2026-10-14 (added 2026-10-13) |
 
 Recommended set source: `avclan-phy.md` "Component Tuning & Upgrades" and the edited netlist (`e784009`).
@@ -74,7 +75,7 @@ Recommended set source: `avclan-phy.md` "Component Tuning & Upgrades" and the ed
 | 4 | 220 kΩ bias pin 6 → **GND** (undocumented, the root-cause bug) | 220 kΩ pin 6 → **pin 3 / 5 V** |
 | 5 | Old H1 silk/label: "Data −" on the top pin, "Data +" on the bottom pin (**swapped**) | H1 left "T" = WHITE = Data+, H1 right = BROWN = Data− |
 | 6 | Data+ → IN− (pin 6), `pol lo` (2026-10-08 state) | Data+ → IN+ (pin 7), `pol hi` |
-| 7 | 2 MΩ 3V3 → pin 7/6 "threshold bias" (2026-10-08 / 10-13) | gone / irrelevant (shifted ≈3.5 mV); not drawn |
-| 8 | `phy-as-built.png` (prius-gen2-avclan) drew the recommended TX set (2.2k/2.2k/1k/68 Ω/BAT54) as "as built" | not verified as built; original netlist values drawn, upgrades tabled above |
+| 7 | 2 MΩ 3V3 → pin 7 (2026-10-08), then → pin 6 (2026-10-13) | **fitted by design** on pin 6 (user-confirmed 2026-10-22), drawn as R2M; its shift is small (≈ +3.5 mV in the car, +16 mV on the bench) next to the 220 kΩ bias |
+| 8 | earlier drawings mixed "as built" and "recommended" driver values without saying which was fitted | driver values confirmed by the owner 2026-10-22 and drawn as built |
 | 9 | `phy-as-built.png`: 12 k bleeder drawn upward to an unlabelled end | bleeder clearly Q2 collector → GND |
 | 10 | Early rebuild diagrams: D2 with cathode toward Data− | D2 cathode at Q1 collector |

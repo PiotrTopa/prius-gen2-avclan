@@ -23,17 +23,17 @@ R2_VAL = "10 kΩ"        # H1 right (BROWN, Data-) -> LM339 pin 6 (IN-); measure
 R3_VAL = "4.7 kΩ"       # LM339 pin 1 (OUT) pull-up to 3V3 -> GP0
 RBIAS_VAL = "220 kΩ"    # LM339 pin 3 (5 V) -> pin 6 (IN-); moved from GND to 5 V on 2026-10-14
 C1_VAL = "100 nF"       # LM339 VCC (pin 3) decoupling
+R2M_VAL = "2 MΩ"        # 3V3 -> pin 6 (IN-): second bias path, fitted by design (user-confirmed 2026-10-22)
 U2_NAME = "LM339 (unit 2)"
 
-# TX -- ORIGINAL netlist values (EasyEDA netlist as first committed, f0eb8d7).
-# Not re-measured on the board; the recommended upgrades are in VALUES.md only.
-TX_SET = "original netlist values (TX parts not re-measured)"
-R4_VAL = "4.7 kΩ"       # GP1 -> Q1 base
-R5_VAL = "1 kΩ"         # Q1 collector -> Q2 base
-R6_VAL = "10 kΩ"        # Q2 base -> 5 V (holds Q2 off)
-R7_VAL = "47 Ω"         # D1 cathode -> Data+
-R8_VAL = "47 Ω"         # Data- -> D2 anode
-D_VAL = "1N4007W"       # D1, D2
+# TX -- as built (user-confirmed 2026-10-22): the upgraded part set.
+TX_SET = "as built (user-confirmed 2026-10-22)"
+R4_VAL = "2.2 kΩ"       # GP1 -> Q1 base
+R5_VAL = "2.2 kΩ"       # Q1 collector -> Q2 base
+R6_VAL = "1 kΩ"         # Q2 base -> 5 V (holds Q2 off)
+R7_VAL = "68 Ω"         # D1 cathode -> Data+
+R8_VAL = "68 Ω"         # Data- -> D2 anode
+D_VAL = "BAT54"         # D1, D2
 Q1_NAME = "BC547"       # NPN (netlist MPN 2N3904S, value field BC547)
 Q2_NAME = "BC327"       # PNP
 RBLEED_VAL = "12 kΩ"    # Q2 collector (D1 anode) -> GND, added 2026-10-13
@@ -103,6 +103,12 @@ def draw_rx(d, oy, xm, xp, xout):
     y5 = oy + 4.2
     d.add(elm.Resistor().up().at(n6).to((n6[0], y5))
           .label(f"Rbias\n{RBIAS_VAL}", loc="bottom", fontsize=FONT))
+    # second bias path: 2 MΩ from 3V3 into pin 6 (deliberate, user-confirmed)
+    n2m = (9.65, y_m)
+    dot(d, n2m)
+    d.add(elm.Resistor().up().at(n2m).to((n2m[0], y_m + 2.3))
+          .label(f"R2M\n{R2M_VAL}", loc="top", fontsize=FONT))
+    supply(d, (n2m[0], y_m + 2.3), "3V3")
     vd = op.vd
     wire(d, vd, (vd[0], y5))
     text(d, (vd[0] + 0.3, vd[1] + 0.45), "3", size=SMALL)
@@ -234,7 +240,7 @@ def sheet_tx():
         terminal(d, (5.0, yd2), "Data−   (H1 right, car BROWN)")
         terminal(d, (19.5, yb1), "GP1  (RP2040 AVC TX)", side="right")
         text(d, (12.0, oy + 1.6), "AVC-LAN driver — push-pull dominant, high-Z recessive", size=FONT + 2)
-        text(d, (12.0, oy + 1.0), f"TX values = {TX_SET}; recommended upgrades: see VALUES.md",
+        text(d, (12.0, oy + 1.0), f"TX values = {TX_SET}; earlier netlist values: see VALUES.md",
              size=SMALL, color="#a00")
         y = yb1 - 2.4
         text(d, (12.0, y), "GP1 HIGH = dominant: Q1 sinks Data− (R8, D2); Q1 pulls Q2's base low via R5, "
